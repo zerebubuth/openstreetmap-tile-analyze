@@ -22,8 +22,6 @@ std::list<fs::path> parse_logfiles(std::list<fs::path> input_files,
   std::list<fs::path> dat_files;
 
   for (fs::path input_file : input_files) {
-    std::cout << "Starting file parser for " << input_file << " in " << output_dir 
-              << "." << std::endl;
     futures.emplace_back(std::async(std::launch::async, file_parser, input_file, output_dir, max_size));
   }
 
@@ -39,7 +37,6 @@ std::list<datfile> sort_datfiles(const std::list<fs::path> &dat_files) {
    std::list<datfile> files;
 
    for (fs::path file : dat_files) {
-     std::cout << "Starting sort for data file " << file << "." << std::endl;
      futures.push_back(std::async(std::launch::async, sort_datfile, file));
    }
 

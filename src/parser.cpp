@@ -269,8 +269,6 @@ std::list<fs::path> file_parser(fs::path input_file,
   size_t part = 0, current_size = 0;
   std::list<fs::path> output_files;
 
-  std::cout << "In file_parser for " << input_file << " -> " << output_dir
-            << "." << std::endl;
   fs::path output_file = output_dir / (boost::format("%s_%06d.dat") % stem % part).str();
   std::ofstream output(output_file.c_str());
   output_files.push_back(output_file);
