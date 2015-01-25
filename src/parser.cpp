@@ -224,6 +224,7 @@ struct log_line_parser : qi::grammar<Iterator, log_line_for_qi()> {
       >> omit[quoted_string] >> lit(" ") // etag?
       >> ip_addr >> lit(" ")
       >> omit[quoted_string] // user agent
+      >> -(lit(" ") >> omit[int_]) // bytes
       ;
 
     path = (
