@@ -270,6 +270,13 @@ std::list<fs::path> file_parser(fs::path input_file,
   size_t part = 0, current_size = 0;
   std::list<fs::path> output_files;
 
+  // short-circuit and return immediately with an empty output if
+  // the file doesn't exist.
+  if (!fs::exists(input_file)) {
+    std::cerr << "Unable to read file " << input_file << " as it does not exist.\n";
+    return output_files;
+  }
+
   fs::path output_file = output_dir / (boost::format("%s_%06d.dat") % stem % part).str();
   std::ofstream output(output_file.c_str());
   output_files.push_back(output_file);
@@ -322,6 +329,17 @@ std::list<fs::path> file_parser(fs::path input_file,
       << " of " << total << " lines.\n";
   std::string str(out.str());
   std::cout.write(str.data(), str.size());
+
+  // if we parsed no lines then the output file is empty, so don't even
+  // bother including it any further.
+  if (total == unparsed) {
+    std::cerr << "Empty output file for input " << input_file << ", skipping.\n";
+    // also make an attempt to clean up the empty files
+    for (const auto &file : output_files) {
+      try { fs::remove(file); } catch (...) { }
+    }
+    output_files.clear();
+  }
 
   return output_files;
 }

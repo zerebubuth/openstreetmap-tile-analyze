@@ -51,3 +51,12 @@ openstreetmap-tile-analyze
 *.exe
 *.out
 *.app
+
+# Autotools test-related files
+test-driver
+test-suite.log
+test/*.log
+test/*.trs
+
+# Test output programs
+test/test_parser

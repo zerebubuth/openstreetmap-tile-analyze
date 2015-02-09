@@ -13,6 +13,7 @@ AC_CONFIG_FILES([Makefile])
 # Checks for programs.
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11
+AC_PROG_RANLIB
 
 # Checks for libraries.
 AX_BOOST_BASE([1.54])
