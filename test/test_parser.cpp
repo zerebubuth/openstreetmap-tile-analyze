@@ -4,6 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
+#include <iostream>
 #include <vector>
 
 namespace fs = boost::filesystem;
