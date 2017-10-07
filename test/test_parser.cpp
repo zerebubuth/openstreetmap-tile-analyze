@@ -30,11 +30,17 @@ struct tmp_dir {
   }
 };
 
-void run_test(const fs::path &input_file) {
+void run_test(const fs::path &input_file, bool expect_files) {
   tmp_dir output_dir;
   const size_t max_size = 16 * 1024 * 1024;
 
   std::list<fs::path> dat_files = file_parser(input_file, output_dir.m_path, max_size);
+
+  if (expect_files && dat_files.empty()) {
+    throw std::runtime_error((boost::format(
+          "Expected some output from input file %1%, but got nothing.")
+        % input_file).str());
+  }
 
   for (const auto &dat_file : dat_files) {
     if (!fs::exists(dat_file)) {
@@ -54,18 +60,19 @@ void run_test(const fs::path &input_file) {
 
 int main() {
   bool failed = true;
-  std::vector<fs::path> files = {
+  std::vector<fs::path> fail_files = {
     "test/data/not_exist.log.xz",
     "test/data/empty.log.xz",
     "test/data/corrupt.log.xz",
     "test/data/unparseable.log.xz",
-    "test/data/simple.log.xz"
   };
 
   try {
-    for (const auto &input_file : files) {
-      run_test(input_file);
+    for (const auto &input_file : fail_files) {
+      run_test(input_file, false);
     }
+
+    run_test("test/data/simple.log.xz", true);
 
     failed = false;
 

@@ -184,8 +184,8 @@ inline uint64_t unmorton(uint64_t x) {
 }
 BOOST_FUSION_ADAPT_STRUCT(
   log_line_for_qi,
-  (zxy_t, zxy)
   (ip_addr_for_qi, ip_addr)
+  (zxy_t, zxy)
   );
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -219,12 +219,18 @@ struct log_line_parser : qi::grammar<Iterator, log_line_for_qi()> {
     using qi::lexeme;
     using qi::char_;
 
-    top = omit[double_] >> lit(" ") // time
-      >> path >> lit(" ")
-      >> omit[quoted_string] >> lit(" ") // etag?
+    top =
+      omit[double_] >> lit(" ") // time
+      >> omit[int_] >> lit(" ") // not sure???
       >> ip_addr >> lit(" ")
+      >> omit[hit_or_miss] >> lit(" ")
+      >> omit[int_] >> lit(" ") // bytes?
+      >> omit[http_method] >> lit(" ")
+      >> path >> lit(" ")
+      >> omit[parent] >> lit(" ") // parent or sibling hit?
+      >> omit[mime_type] >> lit(" ")
+      >> omit[quoted_string] >> lit(" ") // referer?
       >> omit[quoted_string] // user agent
-      >> -(lit(" ") >> omit[int_]) // bytes
       ;
 
     path = (
@@ -243,6 +249,11 @@ struct log_line_parser : qi::grammar<Iterator, log_line_for_qi()> {
 
     quoted_string = lit("\"") >> *((char_ - '"' - '\\') || ('\\' >> char_)) >> lit("\"");
 
+    hit_or_miss = *(char_('A', 'Z') | lit("_")) >> lit("/") >> int_;
+    http_method = lit("GET");
+    mime_type = lit("image/png");
+    parent = *(char_ - ' ');
+
     /*
     qi::debug(top);
     qi::debug(path);
@@ -259,7 +270,7 @@ struct log_line_parser : qi::grammar<Iterator, log_line_for_qi()> {
   qi::rule<Iterator, log_line_for_qi()> top;
   qi::rule<Iterator, zxy_t()> path;
   qi::rule<Iterator, ip_addr_for_qi()> ip_addr;
-  qi::rule<Iterator, std::string()> quoted_string;
+  qi::rule<Iterator, std::string()> quoted_string, hit_or_miss, http_method, mime_type, parent;
 };
 
 std::list<fs::path> file_parser(fs::path input_file,
